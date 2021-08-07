@@ -1,14 +1,13 @@
-import 'package:flutter_catalog/models/cart.dart';
-import 'package:flutter_catalog/models/catalog.dart';
+import 'package:flutter_catalog/core/data.dart';
+import 'package:flutter_catalog/models/shopping.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 class MyStore extends VxStore {
-  CatalogModel catalog;
-  CartModel cart;
+  DataModel dataModel = DataModel.instance;
+  Shopping shopping;
 
   MyStore() {
-    catalog = CatalogModel();
-    cart = CartModel();
-    cart.catalog = catalog;
+    this.shopping = Shopping();
+    this.shopping.collection = dataModel;
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_catalog/models/catalog.dart';
-import 'package:flutter_catalog/pages/home_detail_page.dart';
+import 'package:flutter_catalog/core/data.dart';
+import 'package:flutter_catalog/models/item.dart';
+import 'package:flutter_catalog/pages/home/home_detail_page.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 import 'add_to_cart.dart';
@@ -14,9 +15,9 @@ class CatalogList extends StatelessWidget {
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2, crossAxisSpacing: 20.0),
             shrinkWrap: true,
-            itemCount: CatalogModel.items.length,
+            itemCount: DataModel.instance.items.length,
             itemBuilder: (context, index) {
-              final catalog = CatalogModel.items[index];
+              final catalog = DataModel.instance.items[index];
               return InkWell(
                 onTap: () => Navigator.push(
                   context,
@@ -30,9 +31,9 @@ class CatalogList extends StatelessWidget {
           )
         : ListView.builder(
             shrinkWrap: true,
-            itemCount: CatalogModel.items.length,
+            itemCount: DataModel.instance.items.length,
             itemBuilder: (context, index) {
-              final catalog = CatalogModel.items[index];
+              final catalog = DataModel.instance.items[index];
               return InkWell(
                 onTap: () => Navigator.push(
                   context,

@@ -1,14 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_catalog/core/store.dart';
-import 'package:flutter_catalog/models/cart.dart';
-import 'dart:convert';
-import 'package:flutter_catalog/models/catalog.dart';
-import 'package:flutter_catalog/utils/routes.dart';
-import 'package:flutter_catalog/widgets/home_widgets/catalog_header.dart';
-import 'package:flutter_catalog/widgets/home_widgets/catalog_list.dart';
+import 'package:flutter_catalog/pages/home/partials/catalog_header.dart';
+import 'package:flutter_catalog/pages/home/partials/catalog_list.dart';
 import 'package:velocity_x/velocity_x.dart';
-import 'package:http/http.dart' as http;
+
+import 'package:flutter_catalog/core/data.dart';
+import 'package:flutter_catalog/core/request.dart';
+import 'package:flutter_catalog/core/store.dart';
+import 'package:flutter_catalog/models/shopping.dart';
+import 'package:flutter_catalog/models/item.dart';
+import 'package:flutter_catalog/routes.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -20,8 +21,6 @@ class _HomePageState extends State<HomePage> {
 
   final String name = "Codepur";
 
-  final url = "https://api.jsonbin.io/b/604dbddb683e7e079c4eefd3";
-
   @override
   void initState() {
     super.initState();
@@ -32,26 +31,24 @@ class _HomePageState extends State<HomePage> {
     await Future.delayed(Duration(seconds: 2));
     // final catalogJson =
     //     await rootBundle.loadString("assets/files/catalog.json");
+    (await Request.get(CATALOG_URL)).decode(onDecoded: (productsData) {
+      DataModel.instance.items = List.from(productsData['products'])
+          .map<Item>((item) => Item.fromMap(item))
+          .toList();
+    });
 
-    final response = await http.get(Uri.parse(url));
-    final catalogJson = response.body;
-    final decodedData = jsonDecode(catalogJson);
-    var productsData = decodedData["products"];
-    CatalogModel.items = List.from(productsData)
-        .map<Item>((item) => Item.fromMap(item))
-        .toList();
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    final _cart = (VxState.store as MyStore).cart;
+    final shopping = (VxState.store as MyStore).shopping;
     return Scaffold(
         backgroundColor: context.canvasColor,
         floatingActionButton: VxBuilder(
           mutations: {AddMutation, RemoveMutation},
           builder: (ctx, _) => FloatingActionButton(
-            onPressed: () => Navigator.pushNamed(context, MyRoutes.cartRoute),
+            onPressed: () => Navigator.pushNamed(context, Routes.cartRoute),
             backgroundColor: context.theme.buttonColor,
             child: Icon(
               CupertinoIcons.cart,
@@ -60,7 +57,7 @@ class _HomePageState extends State<HomePage> {
           ).badge(
               color: Vx.gray200,
               size: 22,
-              count: _cart.items.length,
+              count: shopping.items.length,
               textStyle: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
@@ -73,7 +70,8 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CatalogHeader(),
-                if (CatalogModel.items != null && CatalogModel.items.isNotEmpty)
+                if (DataModel.instance.items != null &&
+                    DataModel.instance.items.isNotEmpty)
                   CatalogList().py16().expand()
                 else
                   CircularProgressIndicator().centered().expand(),

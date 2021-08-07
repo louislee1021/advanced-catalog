@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_catalog/core/store.dart';
-import 'package:flutter_catalog/models/cart.dart';
+import 'package:flutter_catalog/models/shopping.dart';
+import 'package:flutter_catalog/models/item.dart';
 import 'package:velocity_x/velocity_x.dart';
 
 class CartPage extends StatelessWidget {
@@ -26,7 +27,7 @@ class CartPage extends StatelessWidget {
 class _CartTotal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final CartModel _cart = (VxState.store as MyStore).cart;
+    final Shopping shopping = (VxState.store as MyStore).shopping;
     return SizedBox(
       height: 200,
       child: Row(
@@ -35,7 +36,7 @@ class _CartTotal extends StatelessWidget {
           VxBuilder(
             mutations: {RemoveMutation},
             builder: (context, _) {
-              return "\$${_cart.totalPrice}"
+              return "\$${shopping.totalPrice}"
                   .text
                   .xl5
                   .color(context.theme.accentColor)
@@ -64,19 +65,22 @@ class _CartList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     VxState.watch(context, on: [RemoveMutation]);
-    final CartModel _cart = (VxState.store as MyStore).cart;
-    return _cart.items.isEmpty
+    final Shopping shopping = (VxState.store as MyStore).shopping;
+    return shopping.items.isEmpty
         ? "Nothing to show".text.xl3.makeCentered()
         : ListView.builder(
-            itemCount: _cart.items?.length,
-            itemBuilder: (context, index) => ListTile(
-              leading: Icon(Icons.done),
-              trailing: IconButton(
-                icon: Icon(Icons.remove_circle_outline),
-                onPressed: () => RemoveMutation(_cart.items[index]),
-              ),
-              title: _cart.items[index].name.text.make(),
-            ),
-          );
+            itemCount: shopping.items?.length,
+            itemBuilder: (context, index) {
+              Item item = shopping.items[index] as Item;
+
+              return ListTile(
+                leading: Icon(Icons.done),
+                trailing: IconButton(
+                  icon: Icon(Icons.remove_circle_outline),
+                  onPressed: () => RemoveMutation(item),
+                ),
+                title: item.name.text.make(),
+              );
+            });
   }
 }
